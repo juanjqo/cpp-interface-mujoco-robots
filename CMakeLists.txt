@@ -39,7 +39,7 @@ option(DQ_MUJOCO_ROBOTS_BUILD_TESTS "Build the tests" ${PROJECT_IS_TOP_LEVEL})
 include(GNUInstallDirs)
 
 # The interface, and dq_mujoco_embed_model()
-find_package(dqrobotics-interface-mujoco 1.0 REQUIRED)
+find_package(dqrobotics-interface-mujoco 1.1 REQUIRED)
 
 #---------------------------------------------------------------------------------------------------
 # Library

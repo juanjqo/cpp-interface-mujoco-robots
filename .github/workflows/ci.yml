@@ -1,0 +1,78 @@
+# Builds cpp-interface-mujoco (which this package needs) and installs it, then builds this package,
+# its examples and its tests, runs the tests, and checks the installation, on every push to main and
+# every pull request.
+#
+# cpp-interface-mujoco is built from its main branch, or from the ref given when the workflow is run
+# by hand (e.g., a tag or a commit, to check against a release). MuJoCo is built from source with it,
+# and ccache keeps it between runs. The tests of this package are headless (no display needed).
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      interface_ref:
+        description: "Branch, tag or commit of cpp-interface-mujoco"
+        default: main
+
+env:
+  INTERFACE_REF: ${{ github.event.inputs.interface_ref || 'main' }}
+  PREFIX: ${{ github.workspace }}/../prefix
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the dependencies
+        run: |
+          sudo add-apt-repository -y ppa:dqrobotics-dev/development
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libdqrobotics libeigen3-dev libglfw3-dev libgl1-mesa-dev ninja-build ccache
+
+      - name: Cache the compilation (ccache)
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ runner.os }}-interface-${{ env.INTERFACE_REF }}
+          max-size: 2G
+
+      - name: Build and install cpp-interface-mujoco (${{ env.INTERFACE_REF }})
+        run: |
+          git clone https://github.com/juanjqo/cpp-interface-mujoco.git ../interface
+          git -C ../interface checkout ${{ env.INTERFACE_REF }}
+          cmake -S ../interface -B ../interface/build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DDQ_MUJOCO_BUILD_EXAMPLES=OFF \
+            -DDQ_MUJOCO_BUILD_TESTS=OFF \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_INSTALL_PREFIX=${{ env.PREFIX }}
+          cmake --build ../interface/build
+          cmake --install ../interface/build
+
+      - name: Configure
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_PREFIX_PATH=${{ env.PREFIX }} \
+            -DCMAKE_INSTALL_PREFIX=${{ env.PREFIX }}
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Install
+        run: |
+          cmake --install build
+          test -f ${{ env.PREFIX }}/lib/cmake/dqrobotics-interface-mujoco-robots/dqrobotics-interface-mujoco-robotsConfig.cmake
+          test -f ${{ env.PREFIX }}/share/doc/dqrobotics-interface-mujoco-robots/LICENSE
+          test -f ${{ env.PREFIX }}/share/doc/dqrobotics-interface-mujoco-robots/models/unitree_b1/LICENSE
