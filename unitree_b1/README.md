@@ -7,8 +7,9 @@ The MuJoCo model of the [B1 quadruped](https://www.unitree.com/b1/) of
 | File | Contents |
 |---|---|
 | `b1.xml` | The B1 with **position actuators**: `ctrl` is the joint position, tracked with a stiffness `kp = 1000` and a damping `kv = 30`, within the torque limits of the joints. The `home` keyframe stands. |
+| `b1_velocity.xml` | The B1 with **velocity actuators**: `ctrl` is the joint velocity, within the velocity limits of the URDF (19.69, 23.32 and 15.55 rad/s), tracked with a gain `kv = 300`, within the torque limits of the joints. With zero velocities, it sinks slowly. |
 | `b1_torque.xml` | The B1 with **torque motors**: `ctrl` is the joint torque, within the torque limits of the joints. Without a controller, it falls. |
-| `b1_robot.xml` | The robot itself, without actuators, included by both. |
+| `b1_robot.xml` | The robot itself, without actuators, included by all three. |
 | `scene.xml` | `b1.xml` on a floor, to view the model (e.g., with MuJoCo's `simulate`). |
 | `assets/` | The meshes (OBJ). |
 
@@ -44,8 +45,8 @@ Torque limits (N·m): 91.0035 (hip), 93.33 (thigh), 140 (calf). Joint ranges (ra
   of their diagonals; the center of mass of the rear hips at z = +0.000109, as in the URDF.
 - The 12 rotor links of the URDF (fixed to the trunk, hips and thighs, 2.92 kg in total), as bodies without
   joints.
-- Actuators: position actuators (`b1.xml`) and torque motors (`b1_torque.xml`), both within the torque
-  limits of the URDF (`actuatorfrcrange` of the joints).
+- Actuators: position actuators (`b1.xml`), velocity actuators (`b1_velocity.xml`) and torque motors
+  (`b1_torque.xml`), all within the torque limits of the URDF (`actuatorfrcrange` of the joints).
 - Keyframe `home`: standing on the floor (the base was 1.5 m above it), with `ctrl`.
 - Sites `FL_foot`, `FR_foot`, `RL_foot`, `RR_foot` at the feet.
 - Collision geometries in group 3 (hidden by default), as in MuJoCo Menagerie.

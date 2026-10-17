@@ -1,0 +1,40 @@
+<!--
+  The Unitree B1 quadruped with velocity actuators: ctrl is the joint velocity (within the velocity
+  limits of the URDF), tracked with a gain kv = 300 (N·m per rad/s), within the torque limits of the
+  joints. Nothing holds the pose: with zero velocities, the robot sinks slowly under its weight. The
+  robot itself is in b1_robot.xml.
+-->
+<mujoco model="unitree_b1">
+  <include file="b1_robot.xml"/>
+
+  <actuator>
+    <velocity name="FL_hip" joint="FL_hip_joint" kv="300" ctrlrange="-19.69 19.69"/>
+    <velocity name="FL_thigh" joint="FL_thigh_joint" kv="300" ctrlrange="-23.32 23.32"/>
+    <velocity name="FL_calf" joint="FL_calf_joint" kv="300" ctrlrange="-15.55 15.55"/>
+
+    <velocity name="FR_hip" joint="FR_hip_joint" kv="300" ctrlrange="-19.69 19.69"/>
+    <velocity name="FR_thigh" joint="FR_thigh_joint" kv="300" ctrlrange="-23.32 23.32"/>
+    <velocity name="FR_calf" joint="FR_calf_joint" kv="300" ctrlrange="-15.55 15.55"/>
+
+    <velocity name="RL_hip" joint="RL_hip_joint" kv="300" ctrlrange="-19.69 19.69"/>
+    <velocity name="RL_thigh" joint="RL_thigh_joint" kv="300" ctrlrange="-23.32 23.32"/>
+    <velocity name="RL_calf" joint="RL_calf_joint" kv="300" ctrlrange="-15.55 15.55"/>
+
+    <velocity name="RR_hip" joint="RR_hip_joint" kv="300" ctrlrange="-19.69 19.69"/>
+    <velocity name="RR_thigh" joint="RR_thigh_joint" kv="300" ctrlrange="-23.32 23.32"/>
+    <velocity name="RR_calf" joint="RR_calf_joint" kv="300" ctrlrange="-15.55 15.55"/>
+  </actuator>
+
+  <keyframe>
+    <key name="home"
+      qpos="0 0 0.615 1 0 0 0
+          0 0.7 -1.2
+          0 0.7 -1.2
+          0 0.7 -1.2
+          0 0.7 -1.2"
+      ctrl="0 0 0
+          0 0 0
+          0 0 0
+          0 0 0"/>
+  </keyframe>
+</mujoco>
