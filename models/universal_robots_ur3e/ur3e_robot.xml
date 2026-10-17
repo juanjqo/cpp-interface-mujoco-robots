@@ -1,0 +1,139 @@
+<!--
+  The Universal Robots UR3e: the robot, without actuators. See README.md for the source and how the
+  model was made. The files with the actuators include it.
+-->
+<mujoco>
+  <compiler angle="radian" meshdir="assets" autolimits="true"/>
+
+  <option integrator="implicitfast"/>
+
+  <default>
+    <default class="ur3e">
+      <!-- armature: the inertia of the motors through their gears -->
+      <joint axis="0 0 1" armature="0.1"/>
+      <!-- Joint ranges, and torque limits (effort in the URDF) for all kinds of actuators -->
+      <default class="shoulder">
+        <joint range="-6.283185307 6.283185307" actuatorfrcrange="-54 54"/>
+      </default>
+      <default class="elbow">
+        <joint range="-3.141592654 3.141592654" actuatorfrcrange="-28 28"/>
+      </default>
+      <default class="wrist">
+        <joint range="-6.283185307 6.283185307" actuatorfrcrange="-9 9"/>
+      </default>
+      <default class="visual">
+        <geom type="mesh" group="2" contype="0" conaffinity="0"/>
+      </default>
+      <default class="collision">
+        <geom type="cylinder" group="3"/>
+      </default>
+    </default>
+  </default>
+
+  <asset>
+    <material name="urblue" rgba="0.49 0.678 0.8 1"/>
+    <material name="linkgrey" rgba="0.82 0.82 0.82 1" specular="0.5" shininess="0.5"/>
+    <material name="jointgrey" rgba="0.278 0.278 0.278 1"/>
+    <material name="black" rgba="0.033 0.033 0.033 1"/>
+
+    <mesh file="base_jointgrey.obj"/>
+    <mesh file="base_black.obj"/>
+    <mesh file="shoulder_urblue.obj"/>
+    <mesh file="shoulder_jointgrey.obj"/>
+    <mesh file="shoulder_black.obj"/>
+    <mesh file="upperarm_urblue.obj"/>
+    <mesh file="upperarm_linkgrey.obj"/>
+    <mesh file="upperarm_jointgrey.obj"/>
+    <mesh file="upperarm_black.obj"/>
+    <mesh file="forearm_urblue.obj"/>
+    <mesh file="forearm_linkgrey.obj"/>
+    <mesh file="forearm_jointgrey.obj"/>
+    <mesh file="forearm_black.obj"/>
+    <mesh file="wrist1_urblue.obj"/>
+    <mesh file="wrist1_jointgrey.obj"/>
+    <mesh file="wrist1_black.obj"/>
+    <mesh file="wrist2_urblue.obj"/>
+    <mesh file="wrist2_jointgrey.obj"/>
+    <mesh file="wrist2_black.obj"/>
+    <mesh file="wrist3_linkgrey.obj"/>
+  </asset>
+
+  <!-- The bodies are the links of the URDF (base_link, whose x axis points forward, as in ROS), with
+       their poses, inertias and the poses of their meshes. base_link_inertia, fixed to base_link and
+       rotated by pi about its z axis, is merged into it: its mass is that of base_link, and the
+       shoulder is rotated by pi. -->
+  <worldbody>
+    <body name="base_link" childclass="ur3e">
+      <inertial pos="0 0 0" mass="2" diaginertia="0.00305317 0.00305317 0.005625"/>
+      <geom class="visual" mesh="base_jointgrey" material="jointgrey"/>
+      <geom class="visual" mesh="base_black" material="black"/>
+      <geom class="collision" size="0.064 0.047" pos="0 0 0.047"/>
+      <body name="shoulder_link" pos="0 0 0.15185" quat="0 0 0 1">
+        <inertial pos="0 0 -0.02" quat="0.824382 0.56456 0.0308962 -0.0266815" mass="1.98"
+          diaginertia="0.00276682 0.00263413 0.00207745"/>
+        <joint name="shoulder_pan_joint" class="shoulder"/>
+        <geom class="visual" mesh="shoulder_urblue" material="urblue" quat="0 0 0 1"/>
+        <geom class="visual" mesh="shoulder_jointgrey" material="jointgrey" quat="0 0 0 1"/>
+        <geom class="visual" mesh="shoulder_black" material="black" quat="0 0 0 1"/>
+        <geom class="collision" size="0.047 0.0575" pos="0 0 0.0005"/>
+        <geom class="collision" size="0.045 0.0315" pos="0 -0.0315 0" quat="1 1 0 0"/>
+        <body name="upper_arm_link" quat="1 1 0 0">
+          <inertial pos="-0.11355 0 0.1157" quat="0.511541 0.487878 0.493562 0.506653" mass="3.4445"
+            diaginertia="0.0460286 0.0449496 0.00420725"/>
+          <joint name="shoulder_lift_joint" class="shoulder"/>
+          <geom class="visual" mesh="upperarm_urblue" material="urblue" pos="0 0 0.12" quat="1 1 -1 -1"/>
+          <geom class="visual" mesh="upperarm_linkgrey" material="linkgrey" pos="0 0 0.12" quat="1 1 -1 -1"/>
+          <geom class="visual" mesh="upperarm_jointgrey" material="jointgrey" pos="0 0 0.12" quat="1 1 -1 -1"/>
+          <geom class="visual" mesh="upperarm_black" material="black" pos="0 0 0.12" quat="1 1 -1 -1"/>
+          <geom class="collision" size="0.047 0.0575" pos="0 0 0.1205"/>
+          <geom class="collision" type="capsule" size="0.034 0.08" pos="-0.12 0 0.12" quat="1 0 1 0"/>
+          <geom class="collision" size="0.039 0.055" pos="-0.24355 0 0.121"/>
+          <body name="forearm_link" pos="-0.24355 0 0">
+            <inertial pos="-0.1632 0 0.0238" quat="0.498615 0.501366 0.496974 0.503022" mass="1.437"
+              diaginertia="0.0113396 0.0110896 0.00105099"/>
+            <joint name="elbow_joint" class="elbow"/>
+            <geom class="visual" mesh="forearm_urblue" material="urblue" pos="0 0 0.027" quat="1 1 -1 -1"/>
+            <geom class="visual" mesh="forearm_linkgrey" material="linkgrey" pos="0 0 0.027" quat="1 1 -1 -1"/>
+            <geom class="visual" mesh="forearm_jointgrey" material="jointgrey" pos="0 0 0.027" quat="1 1 -1 -1"/>
+            <geom class="visual" mesh="forearm_black" material="black" pos="0 0 0.027" quat="1 1 -1 -1"/>
+            <geom class="collision" size="0.038 0.035" pos="0 0 0.031"/>
+            <geom class="collision" type="capsule" size="0.028 0.065" pos="-0.105 0 0.027" quat="1 0 1 0"/>
+            <geom class="collision" size="0.032 0.048" pos="-0.2132 0 0.029"/>
+            <body name="wrist_1_link" pos="-0.2132 0 0.13105">
+              <inertial pos="0 -0.01 0" quat="0.982855 0.184339 -0.00385192 0.00065385" mass="0.871"
+                diaginertia="0.000817416 0.000708389 0.000525695"/>
+              <joint name="wrist_1_joint" class="wrist"/>
+              <geom class="visual" mesh="wrist1_urblue" material="urblue" pos="0 0 -0.104" quat="1 1 0 0"/>
+              <geom class="visual" mesh="wrist1_jointgrey" material="jointgrey" pos="0 0 -0.104" quat="1 1 0 0"/>
+              <geom class="visual" mesh="wrist1_black" material="black" pos="0 0 -0.104" quat="1 1 0 0"/>
+              <geom class="collision" size="0.032 0.043" pos="0 0 -0.011"/>
+              <geom class="collision" size="0.032 0.0485" pos="0 -0.0015 0" quat="1 1 0 0"/>
+              <body name="wrist_2_link" pos="0 -0.08535 0" quat="1 1 0 0">
+                <inertial pos="0 0.01 0" quat="0.997726 -0.0659421 0.00057165 -0.0139161" mass="0.805"
+                  diaginertia="0.000605916 0.000587282 0.000379501"/>
+                <joint name="wrist_2_joint" class="wrist"/>
+                <geom class="visual" mesh="wrist2_urblue" material="urblue" pos="0 0 -0.08535"/>
+                <geom class="visual" mesh="wrist2_jointgrey" material="jointgrey" pos="0 0 -0.08535"/>
+                <geom class="visual" mesh="wrist2_black" material="black" pos="0 0 -0.08535"/>
+                <geom class="collision" size="0.032 0.0335" pos="0 0 -0.0015"/>
+                <geom class="collision" size="0.032 0.0485" pos="0 0.0015 0" quat="1 1 0 0"/>
+                <body name="wrist_3_link" pos="0 0.0921 0" quat="1 -1 0 0">
+                  <inertial pos="0 0 -0.02" quat="-0.0596463 0.703375 0.0549048 0.706181" mass="0.261"
+                    diaginertia="0.000137102 0.000108615 0.000107983"/>
+                  <!-- Unlimited in the URDF (continuous) -->
+                  <joint name="wrist_3_joint" class="wrist" limited="false"/>
+                  <geom class="visual" mesh="wrist3_linkgrey" material="linkgrey" pos="0 0 -0.0921" quat="1 1 0 0"/>
+                  <geom class="collision" size="0.032 0.021" pos="0 0 -0.021"/>
+                  <!-- The end effector, at the center of the flange, with its z axis out of it: the
+                       frame 6 of the DH parameters of UR3eRobot::kinematics(). It is tool0 of ROS
+                       (this body's frame) rotated by pi about its z axis. -->
+                  <site name="end_effector" quat="0 0 0 1" size="0.01"/>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

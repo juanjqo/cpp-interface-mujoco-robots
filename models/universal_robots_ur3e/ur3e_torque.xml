@@ -1,0 +1,21 @@
+<!--
+  The Universal Robots UR3e with torque motors: ctrl is the joint torque, within the torque limits of
+  the joints (54, 28 and 9 N·m for the shoulder, elbow and wrist joints). Without a controller, the arm
+  falls. The robot itself is in ur3e_robot.xml.
+-->
+<mujoco model="ur3e">
+  <include file="ur3e_robot.xml"/>
+
+  <actuator>
+    <motor name="shoulder_pan" joint="shoulder_pan_joint" ctrlrange="-54 54"/>
+    <motor name="shoulder_lift" joint="shoulder_lift_joint" ctrlrange="-54 54"/>
+    <motor name="elbow" joint="elbow_joint" ctrlrange="-28 28"/>
+    <motor name="wrist_1" joint="wrist_1_joint" ctrlrange="-9 9"/>
+    <motor name="wrist_2" joint="wrist_2_joint" ctrlrange="-9 9"/>
+    <motor name="wrist_3" joint="wrist_3_joint" ctrlrange="-9 9"/>
+  </actuator>
+
+  <keyframe>
+    <key name="home" qpos="0 -1.570796327 1.570796327 -1.570796327 -1.570796327 0" ctrl="0 0 0 0 0 0"/>
+  </keyframe>
+</mujoco>

@@ -4,6 +4,7 @@ set(EXAMPLES
     unitree_b1
     unitree_z1
     unitree_b1z1
+    ur3e
 )
 
 foreach(example IN LISTS EXAMPLES)

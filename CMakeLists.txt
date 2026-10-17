@@ -19,7 +19,7 @@ cmake_minimum_required(VERSION 3.22...3.28)
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 
 project(dqrobotics-interface-mujoco-robots
-        VERSION 1.0
+        VERSION 1.1
         DESCRIPTION "Models of real robots (MuJoCo) and their kinematics (DQ Robotics) for cpp-interface-mujoco."
         HOMEPAGE_URL "https://github.com/juanjqo/cpp-interface-mujoco-robots"
         LANGUAGES CXX)
@@ -54,11 +54,12 @@ find_package(dqrobotics-interface-mujoco 1.1 REQUIRED)
 add_library(${PROJECT_NAME}
     src/UnitreeB1Robot.cpp
     src/UnitreeZ1Robot.cpp
+    src/UR3eRobot.cpp
 )
 add_library(dqrobotics_extensions::interface-mujoco-robots ALIAS ${PROJECT_NAME})
 set_target_properties(${PROJECT_NAME} PROPERTIES EXPORT_NAME interface-mujoco-robots)
 
-set(ROBOT_MODELS unitree_b1 unitree_z1)
+set(ROBOT_MODELS unitree_b1 unitree_z1 universal_robots_ur3e)
 set(MODELS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/models)
 
 # The B1 with position actuators, and with velocity actuators and torque motors (b1_velocity.xml and
@@ -81,6 +82,16 @@ dq_mujoco_embed_model(${PROJECT_NAME}
     MAIN      z1_gripper.xml
     ASSETS    z1.xml z1_velocity.xml z1_torque.xml z1_gripper_velocity.xml z1_gripper_torque.xml
               z1_robot.xml z1_gripper_robot.xml ${unitree_z1_meshes}
+)
+# The UR3e with position actuators, and with velocity actuators and torque motors (as more assets),
+# sharing the robot (ur3e_robot.xml) and the meshes
+file(GLOB universal_robots_ur3e_meshes RELATIVE ${MODELS_DIR}/universal_robots_ur3e
+     CONFIGURE_DEPENDS ${MODELS_DIR}/universal_robots_ur3e/assets/*.obj)
+dq_mujoco_embed_model(${PROJECT_NAME}
+    FUNCTION  universal_robots_ur3e
+    DIRECTORY ${MODELS_DIR}/universal_robots_ur3e
+    MAIN      ur3e.xml
+    ASSETS    ur3e_velocity.xml ur3e_torque.xml ur3e_robot.xml ${universal_robots_ur3e_meshes}
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC

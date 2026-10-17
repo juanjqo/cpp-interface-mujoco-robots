@@ -1,0 +1,37 @@
+<!--
+  The Universal Robots UR3e with position actuators: ctrl is the joint position, tracked with a
+  stiffness kp (2000, 1000 and 500 N·m/rad for the shoulder, elbow and wrist joints) and a damping
+  kv (kp/20, at least 1.6 times the critical damping), within the torque limits of the joints. The
+  robot itself is in ur3e_robot.xml.
+-->
+<mujoco model="ur3e">
+  <include file="ur3e_robot.xml"/>
+
+  <default>
+    <default class="ur3e_position">
+      <general biastype="affine"/>
+      <default class="shoulder_position">
+        <general gainprm="2000" biasprm="0 -2000 -100"/>
+      </default>
+      <default class="elbow_position">
+        <general gainprm="1000" biasprm="0 -1000 -50"/>
+      </default>
+      <default class="wrist_position">
+        <general gainprm="500" biasprm="0 -500 -25"/>
+      </default>
+    </default>
+  </default>
+
+  <actuator>
+    <general class="shoulder_position" name="shoulder_pan" joint="shoulder_pan_joint" ctrlrange="-6.283185307 6.283185307"/>
+    <general class="shoulder_position" name="shoulder_lift" joint="shoulder_lift_joint" ctrlrange="-6.283185307 6.283185307"/>
+    <general class="elbow_position" name="elbow" joint="elbow_joint" ctrlrange="-3.141592654 3.141592654"/>
+    <general class="wrist_position" name="wrist_1" joint="wrist_1_joint" ctrlrange="-6.283185307 6.283185307"/>
+    <general class="wrist_position" name="wrist_2" joint="wrist_2_joint" ctrlrange="-6.283185307 6.283185307"/>
+    <general class="wrist_position" name="wrist_3" joint="wrist_3_joint" ctrlrange="-6.283185307 6.283185307"/>
+  </actuator>
+
+  <keyframe>
+    <key name="home" qpos="0 -1.570796327 1.570796327 -1.570796327 -1.570796327 0" ctrl="0 -1.570796327 1.570796327 -1.570796327 -1.570796327 0"/>
+  </keyframe>
+</mujoco>

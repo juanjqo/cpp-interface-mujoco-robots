@@ -20,6 +20,8 @@ Run all of them with ctest, or some of them with: ./test_robots <name> [<name> .
 #include "dqrobotics_extensions/interfaces/mujoco/DQ_MujocoSceneBuilder.h"
 #include "dqrobotics_extensions/interfaces/mujoco/robots/UnitreeB1Robot.h"
 #include "dqrobotics_extensions/interfaces/mujoco/robots/UnitreeZ1Robot.h"
+#include "dqrobotics_extensions/interfaces/mujoco/robots/UR3eRobot.h"
+#include <dqrobotics/utils/DQ_Constants.h>
 #include <chrono>
 #include <cmath>
 #include <functional>
@@ -523,6 +525,164 @@ static void unitree_b1z1()
     check_arm();
 }
 
+/*********************************************
+ * UNIVERSAL ROBOTS UR3E
+ * *******************************************/
+
+using UR3eACTUATORS = UR3eRobot::ACTUATORS;
+
+static VectorXd ur3e_q_home()
+{
+    return vec({0, -pi/2, pi/2, -pi/2, -pi/2, 0});
+}
+
+static void ur3e_description()
+{
+    const DQ_MujocoRobotDescription robot = UR3eRobot::description();
+    CHECK((robot.joint_names == std::vector<std::string>{"shoulder_pan_joint", "shoulder_lift_joint", "elbow_joint",
+                                                         "wrist_1_joint", "wrist_2_joint", "wrist_3_joint"}));
+    CHECK(robot.gripper_joint_names.empty());
+    CHECK(robot.floating_base.empty());
+    CHECK(robot.end_effector_sites == std::vector<std::string>{"end_effector"});
+    // 20 meshes (one per material of each link) and the robot file that the model includes
+    CHECK(robot.model.assets.size() == 20 + 1 && robot.model.assets.count("ur3e_robot.xml") == 1);
+
+    DQ_MujocoInterface mi(HEADLESS);
+    mi.load_model(robot.model);
+    CHECK(mi.get_joint_names(true) == robot.joint_names);
+    mi.reset_simulation(robot.home_keyframe);
+    CHECK_NEAR((mi.get_joint_positions(robot.joint_names) - ur3e_q_home()).norm(), 0.0);
+    // The actuators hold the home pose
+    for (int i = 0; i < 1000; i++)
+        mi.trigger_next_simulation_step();
+    CHECK((mi.get_joint_positions(robot.joint_names) - ur3e_q_home()).norm() < 0.01);
+
+    // and reach other targets, and stay there
+    const VectorXd q_target = vec({0.5, -1.2, 1.0, -0.6, -1.0, 1.0});
+    mi.set_joint_target_positions(robot.joint_names, q_target);
+    for (int i = 0; i < 1500; i++)
+        mi.trigger_next_simulation_step();
+    CHECK((mi.get_joint_positions(robot.joint_names) - q_target).norm() < 0.01);
+    CHECK(mi.get_joint_velocities(robot.joint_names).norm() < 1e-3);
+}
+
+static void ur3e_actuators()
+{
+    auto run_3s = [](DQ_MujocoInterface& mi, const DQ_MujocoRobotDescription& robot,
+                     const std::function<void()>& control)
+    {
+        mi.load_model(robot.model);
+        mi.reset_simulation(robot.home_keyframe);
+        for (int i = 0; i < 1500; i++)
+        {
+            control();
+            mi.trigger_next_simulation_step();
+        }
+        return (mi.get_joint_positions(robot.joint_names) - ur3e_q_home()).cwiseAbs().maxCoeff();
+    };
+    const DQ_MujocoRobotDescription position = UR3eRobot::description(UR3eACTUATORS::POSITION);
+    const DQ_MujocoRobotDescription velocity = UR3eRobot::description(UR3eACTUATORS::VELOCITY);
+    const DQ_MujocoRobotDescription torque = UR3eRobot::description(UR3eACTUATORS::TORQUE);
+    CHECK(position.model.name == "ur3e.xml");
+    CHECK(velocity.model.name == "ur3e_velocity.xml");
+    CHECK(torque.model.name == "ur3e_torque.xml");
+    for (const DQ_MujocoRobotDescription& robot : {velocity, torque})
+    {
+        CHECK(robot.joint_names == position.joint_names);
+        CHECK(robot.model.assets.size() == position.model.assets.size());  // the same meshes and robot file
+    }
+
+    // With constant commands (those of the keyframe), position actuators hold the pose, and the others
+    // do not: with zero velocities the arm sinks, and with no torques it falls
+    DQ_MujocoInterface mi(HEADLESS);
+    CHECK(run_3s(mi, position, [] {}) < 0.01);
+    CHECK(run_3s(mi, velocity, [] {}) > 0.05);
+    CHECK(run_3s(mi, torque, [] {}) > 0.5);
+
+    // Each holds it with its own command: velocities of a proportional controller, and torques of a PD
+    // controller, on the home configuration
+    CHECK(run_3s(mi, velocity, [&] {
+              mi.set_joint_target_velocities(velocity.joint_names, 10*(ur3e_q_home() - mi.get_joint_positions(velocity.joint_names)));
+          }) < 0.03);
+    CHECK(run_3s(mi, torque, [&] {
+              const VectorXd q = mi.get_joint_positions(torque.joint_names);
+              const VectorXd q_dot = mi.get_joint_velocities(torque.joint_names);
+              mi.set_joint_target_forces(torque.joint_names, 300*(ur3e_q_home() - q) - 2*q_dot);
+          }) < 0.1);
+}
+
+static void ur3e_kinematics()
+{
+    // The DQ Robotics model must agree with the MuJoCo model: fkm(q) is the pose of the end_effector
+    // site, for q in the order of joint_names
+    const DQ_MujocoRobotDescription robot = UR3eRobot::description();
+    DQ_SerialManipulatorDH arm = UR3eRobot::kinematics();
+    CHECK(arm.get_dim_configuration_space() == 6);
+
+    DQ_MujocoInterface mi(HEADLESS);
+    mi.load_model(robot.model);
+    const std::string& effector = robot.end_effector_sites.at(0);
+
+    // At q = 0 the arm is stretched forward (along x), with the flange 0.4567 m ahead, 0.2232 m to
+    // the left and 0.0665 m above the origin, pointing to the left (y)
+    mi.set_joint_positions(robot.joint_names, VectorXd::Zero(6));
+    const DQ x0 = mi.get_site_pose(effector);
+    CHECK(same_pose_error(arm.fkm(VectorXd::Zero(6)), x0) < 1e-9);
+    CHECK((vec3(x0.translation()) - Vector3d(0.24355 + 0.2132, 0.13105 + 0.0921, 0.15185 - 0.08535)).norm() < 1e-9);
+    CHECK((vec3(x0.rotation()*k_*x0.rotation().conj()) - Vector3d(0, 1, 0)).norm() < 1e-9);
+    mi.reset_simulation(robot.home_keyframe);
+    CHECK(same_pose_error(arm.fkm(ur3e_q_home()), mi.get_site_pose(effector)) < 1e-9);
+
+    // Random configurations within the joint limits, which are those of the MuJoCo model
+    std::mt19937 generator(42);
+    const VectorXd q_min = arm.get_lower_q_limit();
+    const VectorXd q_max = arm.get_upper_q_limit();
+    for (int k = 0; k < 50; k++)
+    {
+        VectorXd q(6);
+        for (int i = 0; i < 6; i++)
+            q(i) = std::uniform_real_distribution<double>(q_min(i), q_max(i))(generator);
+        mi.set_joint_positions(robot.joint_names, q);
+        CHECK((mi.get_joint_positions(robot.joint_names) - q).norm() < 1e-12);
+        CHECK(same_pose_error(arm.fkm(q), mi.get_site_pose(effector)) < 1e-9);
+    }
+}
+
+static void scene_builder_ur3e()
+{
+    // A UR3e on a table (a box) and one mounted on the base of a B1: both start at home, and their
+    // kinematics, moved to where they were placed, match their end effectors
+    DQ_MujocoSceneBuilder builder;
+    builder.add_floor();
+    const DQ table_top = 1 + 0.5*E_*(1.0*j_ + 0.5*k_);
+    builder.add_box("table", 1 + 0.5*E_*(1.0*j_ + 0.25*k_), {0.3, 0.3, 0.25});
+    const DQ_MujocoRobotDescription on_table = builder.add_robot(UR3eRobot::description(), "table_ur3e_", table_top);
+    const DQ_MujocoRobotDescription b1 = builder.add_robot(UnitreeB1Robot::description(), "b1_");
+    const DQ_MujocoRobotDescription on_b1 = builder.add_robot(UR3eRobot::description(), "b1_ur3e_",
+                                                              UnitreeB1Robot::arm_mount(), b1.floating_base);
+
+    DQ_MujocoInterface mi(HEADLESS);
+    mi.load_model(builder.build());
+    mi.reset_simulation("home");
+    CHECK_NEAR((mi.get_joint_positions(on_table.joint_names) - ur3e_q_home()).norm(), 0.0);
+    CHECK_NEAR((mi.get_joint_positions(on_b1.joint_names) - ur3e_q_home()).norm(), 0.0);
+
+    DQ_SerialManipulatorDH arm = UR3eRobot::kinematics();
+    const DQ reference = arm.get_reference_frame();
+    arm.set_reference_frame(table_top*reference);
+    CHECK(same_pose_error(arm.fkm(ur3e_q_home()), mi.get_site_pose(on_table.end_effector_sites.at(0))) < 1e-9);
+    arm.set_reference_frame(mi.get_base_pose(b1.floating_base)*UnitreeB1Robot::arm_mount()*reference);
+    CHECK(same_pose_error(arm.fkm(ur3e_q_home()), mi.get_site_pose(on_b1.end_effector_sites.at(0))) < 1e-9);
+
+    // After 3 s, the arms hold their home pose, and the B1 stands with its arm
+    for (int i = 0; i < 1500; i++)
+        mi.trigger_next_simulation_step();
+    CHECK((mi.get_joint_positions(on_table.joint_names) - ur3e_q_home()).norm() < 0.01);
+    CHECK((mi.get_joint_positions(on_b1.joint_names) - ur3e_q_home()).norm() < 0.05);
+    const double height = mi.get_base_pose(b1.floating_base).translation().q(3);
+    CHECK(height > 0.55 && height < 0.61);
+}
+
 int main(int argc, char** argv)
 {
     const std::map<std::string, std::function<void()>> tests_ = {
@@ -535,6 +695,10 @@ int main(int argc, char** argv)
         {"unitree_b1_kinematics", unitree_b1_kinematics},
         {"scene_builder_b1_and_z1", scene_builder_b1_and_z1},
         {"unitree_b1z1", unitree_b1z1},
+        {"ur3e_description", ur3e_description},
+        {"ur3e_actuators", ur3e_actuators},
+        {"ur3e_kinematics", ur3e_kinematics},
+        {"scene_builder_ur3e", scene_builder_ur3e},
     };
 
     std::vector<std::string> selected;

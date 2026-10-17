@@ -16,6 +16,7 @@ with MuJoCo's `simulate`).
 |---|---|---|---|
 | Unitree B1, quadruped | [`UnitreeB1Robot`](include/dqrobotics_extensions/interfaces/mujoco/robots/UnitreeB1Robot.h) | `ACTUATORS::POSITION` (default), `VELOCITY`, `TORQUE`. Sensors: an IMU (`imu_site`) and touch sensors at the feet. `arm_mount()`: where a Z1 is mounted on its back | [`models/unitree_b1`](models/unitree_b1) |
 | Unitree Z1, 6-DoF arm | [`UnitreeZ1Robot`](include/dqrobotics_extensions/interfaces/mujoco/robots/UnitreeZ1Robot.h) | `GRIPPER::WITH` (default), `WITHOUT`; `ACTUATORS::POSITION` (default), `VELOCITY`, `TORQUE` for the arm (the gripper always has a position actuator) | [`models/unitree_z1`](models/unitree_z1) |
+| Universal Robots UR3e, 6-DoF arm | [`UR3eRobot`](include/dqrobotics_extensions/interfaces/mujoco/robots/UR3eRobot.h) | `ACTUATORS::POSITION` (default), `VELOCITY`, `TORQUE`. Its kinematics are the DH parameters of [sas_robot_driver_ur](https://github.com/MarinhoLab/sas_robot_driver_ur), used with the real robot | [`models/universal_robots_ur3e`](models/universal_robots_ur3e) |
 
 ## Install
 
@@ -85,6 +86,7 @@ arm.set_reference_frame(mi.get_base_pose(b1.floating_base)*arm_reference);  // u
 | [`unitree_b1`](examples/unitree_b1.cpp) | The B1 stands with its feet on the floor and moves its base (up and down, rolling, pitching): each leg follows its foot, relative to the desired base, with a kinematic controller that uses `UnitreeB1Robot::kinematics()` |
 | [`unitree_b1z1`](examples/unitree_b1z1.cpp) | A Z1 mounted on the back of a B1 (the Unitree B1Z1): the B1 moves its base as in `unitree_b1`, while the Z1, whose kinematics are carried by the measured base, keeps its gripper still in the world; the gripper opens and closes |
 | [`unitree_z1`](examples/unitree_z1.cpp) | Two Z1 arms, with and without the gripper, placed with the scene builder: each end effector follows a moving target with a kinematic controller that uses `UnitreeZ1Robot::kinematics()`, and the gripper opens and closes |
+| [`ur3e`](examples/ur3e.cpp) | A UR3e on a table: its end effector follows a target that moves along a circle, keeping the orientation of the home pose, with a kinematic controller of the pose that uses `UR3eRobot::kinematics()` |
 
 ## Conventions of the models
 
@@ -116,11 +118,15 @@ arm.set_reference_frame(mi.get_base_pose(b1.floating_base)*arm_reference);  // u
 
 - [`tools/decimate_meshes.py`](tools/decimate_meshes.py): decimates OBJ meshes with Blender (headless), keeping their
   coordinates. The command used for each model is in its README.
+- [`tools/dae_to_obj.py`](tools/dae_to_obj.py): converts COLLADA (DAE) meshes, which MuJoCo cannot load (nor Blender
+  5 import), to OBJ meshes, one per material, ready to be decimated. Needs pycollada.
 
 ## License
 
 - The files of each model directory (`models/<robot>/`) are under the license in that directory: BSD-3-Clause,
-  Copyright (c) 2016-2022 Unitree Robotics, for the Unitree robots. These licenses are installed with the library.
+  Copyright (c) 2016-2022 Unitree Robotics, for the Unitree robots, and BSD-3-Clause, from
+  [Universal_Robots_ROS2_Description](https://github.com/UniversalRobots/Universal_Robots_ROS2_Description), for the
+  UR3e. These licenses are installed with the library.
 - The other files of this repository (the C++ code, the tools and the documentation) are under the
   [LGPL-3.0-or-later](LICENSE), which supplements the [GPL-3.0](COPYING).
 - The installation includes all these licenses, in `share/doc/dqrobotics-interface-mujoco-robots`.

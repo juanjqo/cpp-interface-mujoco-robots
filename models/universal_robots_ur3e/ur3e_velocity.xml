@@ -1,0 +1,23 @@
+<!--
+  The Universal Robots UR3e with velocity actuators: ctrl is the joint velocity (within the velocity
+  limits of the URDF, pi rad/s for the shoulder and elbow joints and 2pi rad/s for the wrist
+  joints), tracked with a gain kv (200, 100 and 20 N·m per rad/s for the shoulder, elbow and wrist
+  joints), within the torque limits of the joints. With zero velocities, the arm sinks slowly under
+  its weight. The robot itself is in ur3e_robot.xml.
+-->
+<mujoco model="ur3e">
+  <include file="ur3e_robot.xml"/>
+
+  <actuator>
+    <velocity name="shoulder_pan" joint="shoulder_pan_joint" kv="200" ctrlrange="-3.141592654 3.141592654"/>
+    <velocity name="shoulder_lift" joint="shoulder_lift_joint" kv="200" ctrlrange="-3.141592654 3.141592654"/>
+    <velocity name="elbow" joint="elbow_joint" kv="100" ctrlrange="-3.141592654 3.141592654"/>
+    <velocity name="wrist_1" joint="wrist_1_joint" kv="20" ctrlrange="-6.283185307 6.283185307"/>
+    <velocity name="wrist_2" joint="wrist_2_joint" kv="20" ctrlrange="-6.283185307 6.283185307"/>
+    <velocity name="wrist_3" joint="wrist_3_joint" kv="20" ctrlrange="-6.283185307 6.283185307"/>
+  </actuator>
+
+  <keyframe>
+    <key name="home" qpos="0 -1.570796327 1.570796327 -1.570796327 -1.570796327 0" ctrl="0 0 0 0 0 0"/>
+  </keyframe>
+</mujoco>
