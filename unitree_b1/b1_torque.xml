@@ -1,0 +1,39 @@
+<!--
+  The Unitree B1 quadruped with torque motors: ctrl is the joint torque, within the torque limits of
+  the joints. Nothing holds the robot: without a controller, it falls. The robot itself is in
+  b1_robot.xml.
+-->
+<mujoco model="unitree_b1">
+  <include file="b1_robot.xml"/>
+
+  <actuator>
+    <motor name="FL_hip" joint="FL_hip_joint" ctrlrange="-91.0035 91.0035"/>
+    <motor name="FL_thigh" joint="FL_thigh_joint" ctrlrange="-93.33 93.33"/>
+    <motor name="FL_calf" joint="FL_calf_joint" ctrlrange="-140 140"/>
+
+    <motor name="FR_hip" joint="FR_hip_joint" ctrlrange="-91.0035 91.0035"/>
+    <motor name="FR_thigh" joint="FR_thigh_joint" ctrlrange="-93.33 93.33"/>
+    <motor name="FR_calf" joint="FR_calf_joint" ctrlrange="-140 140"/>
+
+    <motor name="RL_hip" joint="RL_hip_joint" ctrlrange="-91.0035 91.0035"/>
+    <motor name="RL_thigh" joint="RL_thigh_joint" ctrlrange="-93.33 93.33"/>
+    <motor name="RL_calf" joint="RL_calf_joint" ctrlrange="-140 140"/>
+
+    <motor name="RR_hip" joint="RR_hip_joint" ctrlrange="-91.0035 91.0035"/>
+    <motor name="RR_thigh" joint="RR_thigh_joint" ctrlrange="-93.33 93.33"/>
+    <motor name="RR_calf" joint="RR_calf_joint" ctrlrange="-140 140"/>
+  </actuator>
+
+  <keyframe>
+    <key name="home"
+      qpos="0 0 0.615 1 0 0 0
+          0 0.7 -1.2
+          0 0.7 -1.2
+          0 0.7 -1.2
+          0 0.7 -1.2"
+      ctrl="0 0 0
+          0 0 0
+          0 0 0
+          0 0 0"/>
+  </keyframe>
+</mujoco>
