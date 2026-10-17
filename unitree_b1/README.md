@@ -36,8 +36,7 @@ Torque limits (N·m): 91.0035 (hip), 93.33 (thigh), 140 (calf). Joint ranges (ra
   `adceb14be2289a136637974de00c30c5ddf5e806`:
   - `hipb.obj`, `thighb.obj`, `thigh_mirrorb.obj` and `calfb.obj`: converted from the DAE meshes of
     unitree_ros (Unitree Robotics).
-  - The other meshes (the trunk, its covers, head, eyes, battery, expansion box, mount frames, supports, Z1
-    brackets and rubber pads): made by Juan Jose Quiroz Omana, and released under the same license.
+  - The other meshes: the trunk and its parts and accessories.
 
 ## Changes from unitree_description
 
