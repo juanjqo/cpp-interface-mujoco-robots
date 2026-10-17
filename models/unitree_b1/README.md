@@ -1,8 +1,7 @@
 # Unitree B1 (MJCF)
 
 The MuJoCo model of the [B1 quadruped](https://www.unitree.com/b1/) of
-[Unitree Robotics](https://www.unitree.com/), used by `UnitreeB1Robot::description()` of
-[cpp-interface-mujoco](https://github.com/juanjqo/cpp-interface-mujoco).
+[Unitree Robotics](https://www.unitree.com/), used by `UnitreeB1Robot::description()` of this package.
 
 | File | Contents |
 |---|---|
@@ -57,7 +56,7 @@ The meshes were generated with (from the root of this repository, with Blender 5
 
 ```bash
 blender -b --factory-startup --python tools/decimate_meshes.py -- \
-    <unitree_description>/unitree_b1/assets unitree_b1/assets --smooth 60 \
+    <unitree_description>/unitree_b1/assets models/unitree_b1/assets --smooth 60 \
     trunk_new_head_mask.obj=6000 trunk_new_base.obj=10000 thighb.obj=12000 thigh_mirrorb.obj=12000 \
     hipb.obj=10000 calfb.obj=6000 covers.obj=5000 trunk_new_head_without_mask.obj=4000 \
     z1_brackets.obj=3000 battery.obj=3000 trunk_decorator.obj=3000 rubber_pads.obj=2000 \

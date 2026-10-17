@@ -2,7 +2,7 @@
 
 The MuJoCo model of the [Z1 manipulator](https://www.unitree.com/z1/) of
 [Unitree Robotics](https://www.unitree.com/), with and without its gripper, used by
-`UnitreeZ1Robot::description()` of [cpp-interface-mujoco](https://github.com/juanjqo/cpp-interface-mujoco).
+`UnitreeZ1Robot::description()` of this package.
 
 | Actuators of the arm | Without the gripper | With the gripper |
 |---|---|---|
