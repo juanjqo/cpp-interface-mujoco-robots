@@ -5,6 +5,11 @@
 # cpp-interface-mujoco is built from its main branch, or from the ref given when the workflow is run
 # by hand (e.g., a tag or a commit, to check against a release). MuJoCo is built from source with it,
 # and ccache keeps it between runs. The tests of this package are headless (no display needed).
+#
+# cpp-interface-mujoco is private, so checking it out needs a token that can read it: the repository
+# secret INTERFACE_TOKEN (a fine-grained personal access token with read-only access to the contents
+# of cpp-interface-mujoco). Without the secret, the token of this workflow is used, which works only
+# if cpp-interface-mujoco is public.
 
 name: CI
 
@@ -20,7 +25,7 @@ on:
 
 env:
   INTERFACE_REF: ${{ github.event.inputs.interface_ref || 'main' }}
-  PREFIX: ${{ github.workspace }}/../prefix
+  PREFIX: ${{ github.workspace }}/_prefix
 
 jobs:
   build-and-test:
@@ -41,19 +46,25 @@ jobs:
           key: ${{ runner.os }}-interface-${{ env.INTERFACE_REF }}
           max-size: 2G
 
-      - name: Build and install cpp-interface-mujoco (${{ env.INTERFACE_REF }})
+      - name: Check out cpp-interface-mujoco (${{ env.INTERFACE_REF }})
+        uses: actions/checkout@v4
+        with:
+          repository: juanjqo/cpp-interface-mujoco
+          ref: ${{ env.INTERFACE_REF }}
+          path: _interface
+          token: ${{ secrets.INTERFACE_TOKEN || github.token }}
+
+      - name: Build and install cpp-interface-mujoco
         run: |
-          git clone https://github.com/juanjqo/cpp-interface-mujoco.git ../interface
-          git -C ../interface checkout ${{ env.INTERFACE_REF }}
-          cmake -S ../interface -B ../interface/build -G Ninja \
+          cmake -S _interface -B _interface/build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DDQ_MUJOCO_BUILD_EXAMPLES=OFF \
             -DDQ_MUJOCO_BUILD_TESTS=OFF \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCMAKE_INSTALL_PREFIX=${{ env.PREFIX }}
-          cmake --build ../interface/build
-          cmake --install ../interface/build
+          cmake --build _interface/build
+          cmake --install _interface/build
 
       - name: Configure
         run: |
