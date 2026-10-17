@@ -10,6 +10,7 @@ The MuJoCo model of the [Z1 manipulator](https://www.unitree.com/z1/) of
 | **Velocity**: `ctrl` is the joint velocity, within 3.1415 rad/s, tracked with a gain `kv = 30`. With zero velocities, the arm sinks slowly. | `z1_velocity.xml` | `z1_gripper_velocity.xml` |
 | **Torque**: `ctrl` is the joint torque. Without a controller, the arm falls. | `z1_torque.xml` | `z1_gripper_torque.xml` |
 | The robot, without actuators, included by the files above | `z1_robot.xml` | `z1_gripper_robot.xml` |
+| The position variant on a floor, with lights, to view the model (e.g., with MuJoCo's `simulate`) | `scene.xml` | `scene_gripper.xml` |
 
 All of them are within the torque limits of the joints: 30 N·m (60 N·m for joint2). The gripper always has
 a position actuator (`ctrl` from -1.5, open, to 0, closed), whatever the actuators of the arm. The `home`
@@ -34,6 +35,7 @@ commit `62ab00f2bc44f6f20c1c9b7a13f3fb1dd41a4e35`: `z1.xml`, `z1_gripper.xml`, `
   the velocity and torque variants, with the velocity limit (`velocityMax`) and the torque limits
   (`torqueMax`) of the URDF of Unitree. The position variants (`z1.xml`, `z1_gripper.xml`) have the
   actuators of the Menagerie.
+- Added `scene.xml` and `scene_gripper.xml`: the position variants on a floor, with lights.
 
 ## License
 
