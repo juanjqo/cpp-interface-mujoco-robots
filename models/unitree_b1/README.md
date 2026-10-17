@@ -20,6 +20,10 @@ The MuJoCo model of the [B1 quadruped](https://www.unitree.com/b1/) of
   the thigh and calf joints about its y axis.
 - Actuators: `FL_hip`, `FL_thigh`, `FL_calf`, ..., one per joint.
 - Feet: the sites `FL_foot`, `FR_foot`, `RL_foot`, `RR_foot`, at the centers of the foot spheres.
+- Sensors: an IMU at the origin of the base (`imu_orientation`, `imu_angular_velocity` and
+  `imu_linear_acceleration`, on the site `imu`), and a touch sensor at each foot (`FL_foot_touch`, ...,
+  `RR_foot_touch`, on the invisible sites of the same names, spheres slightly larger than the feet): the
+  normal force of the foot on the ground.
 - Keyframe `home`: standing, each leg at (hip, thigh, calf) = (0, 0.7, -1.2), with the base at a height
   of 0.615 m (the feet on the floor).
 
@@ -48,6 +52,7 @@ Torque limits (N·m): 91.0035 (hip), 93.33 (thigh), 140 (calf). Joint ranges (ra
   (`b1_torque.xml`), all within the torque limits of the URDF (`actuatorfrcrange` of the joints).
 - Keyframe `home`: standing on the floor (the base was 1.5 m above it), with `ctrl`.
 - Sites `FL_foot`, `FR_foot`, `RL_foot`, `RR_foot` at the feet.
+- Sensors: the IMU (on the site `imu` of the URDF) and touch sensors at the feet.
 - Collision geometries in group 3 (hidden by default), as in MuJoCo Menagerie.
 - The meshes decimated from 416k to 86k triangles (36 MB to 5.5 MB): the robot renders 157k triangles
   instead of 760k, and compiles in 23 ms instead of 102 ms. Unused meshes removed.

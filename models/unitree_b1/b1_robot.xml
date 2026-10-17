@@ -125,6 +125,7 @@
               <geom name="FL_foot_collision" class="foot"/>
               <geom type="sphere" size="0.03" material="green" rgba="0.1 0.9 0.1 0.5" class="visual"/>
               <site name="FL_foot" size="0.01"/>
+              <site name="FL_foot_touch" type="sphere" size="0.045" rgba="0 0 0 0"/>
             </body>
           </body>
         </body>
@@ -162,6 +163,7 @@
               <geom name="FR_foot_collision" class="foot"/>
               <geom type="sphere" size="0.03" material="green" rgba="0.1 0.9 0.1 0.5" class="visual"/>
               <site name="FR_foot" size="0.01"/>
+              <site name="FR_foot_touch" type="sphere" size="0.045" rgba="0 0 0 0"/>
             </body>
           </body>
         </body>
@@ -199,6 +201,7 @@
               <geom name="RL_foot_collision" class="foot"/>
               <geom type="sphere" size="0.03" material="green" rgba="0.1 0.9 0.1 0.5" class="visual"/>
               <site name="RL_foot" size="0.01"/>
+              <site name="RL_foot_touch" type="sphere" size="0.045" rgba="0 0 0 0"/>
             </body>
           </body>
         </body>
@@ -236,10 +239,23 @@
               <geom name="RR_foot_collision" class="foot"/>
               <geom type="sphere" size="0.03" material="green" rgba="0.1 0.9 0.1 0.5" class="visual"/>
               <site name="RR_foot" size="0.01"/>
+              <site name="RR_foot_touch" type="sphere" size="0.045" rgba="0 0 0 0"/>
             </body>
           </body>
         </body>
       </body>
     </body>
   </worldbody>
+
+  <!-- The IMU at the origin of the base, and a touch sensor at each foot: the normal force of the
+       contacts inside a sphere slightly larger than the foot -->
+  <sensor>
+    <framequat name="imu_orientation" objtype="site" objname="imu"/>
+    <gyro name="imu_angular_velocity" site="imu"/>
+    <accelerometer name="imu_linear_acceleration" site="imu"/>
+    <touch name="FL_foot_touch" site="FL_foot_touch"/>
+    <touch name="FR_foot_touch" site="FR_foot_touch"/>
+    <touch name="RL_foot_touch" site="RL_foot_touch"/>
+    <touch name="RR_foot_touch" site="RR_foot_touch"/>
+  </sensor>
 </mujoco>

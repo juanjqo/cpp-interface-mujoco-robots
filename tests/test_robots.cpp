@@ -361,6 +361,33 @@ static void unitree_b1_description()
           }) > 0.58);
 }
 
+static void unitree_b1_sensors()
+{
+    // Standing at rest: the IMU measures gravity upwards (along the z axis of the base) and the
+    // orientation of the base, and the feet hold the weight of the robot (62.574 kg)
+    DQ_MujocoInterface mi(HEADLESS);
+    const DQ_MujocoRobotDescription robot = load_on_a_floor(mi, UnitreeB1Robot::description());
+    CHECK(robot.imu_site == "b1_imu");
+    mi.reset_simulation("home");
+    for (int i = 0; i < 1500; i++)
+        mi.trigger_next_simulation_step();
+    const double g = 9.81;
+    const DQ x_base = mi.get_base_pose(robot.floating_base);
+    const DQ a = mi.get_imu_linear_acceleration(robot.imu_site);
+    const DQ a_expected = g*(conj(x_base.P())*k_*x_base.P());  // up, in the frame of the base
+    CHECK(same_pose_error(a, a_expected) < 0.05);
+    CHECK(vec4(mi.get_imu_angular_velocity(robot.imu_site)).norm() < 1e-2);
+    CHECK(same_pose_error(mi.get_imu_orientation(robot.imu_site), x_base.P()) < 1e-6);
+    double total = 0;
+    for (const std::string leg : {"FL", "FR", "RL", "RR"})
+    {
+        const double f = mi.get_touch("b1_" + leg + "_foot_touch");
+        CHECK(f > 50);
+        total += f;
+    }
+    CHECK(std::abs(total - 62.574*g) < 0.03*62.574*g);
+}
+
 static void unitree_b1_kinematics()
 {
     // The DQ Robotics legs must agree with the MuJoCo model: x_base * legs[i].fkm(q_leg) is the
@@ -504,6 +531,7 @@ int main(int argc, char** argv)
         {"unitree_z1_kinematics", unitree_z1_kinematics},
         {"edit_scene_with_z1", edit_scene_with_z1},
         {"unitree_b1_description", unitree_b1_description},
+        {"unitree_b1_sensors", unitree_b1_sensors},
         {"unitree_b1_kinematics", unitree_b1_kinematics},
         {"scene_builder_b1_and_z1", scene_builder_b1_and_z1},
         {"unitree_b1z1", unitree_b1z1},

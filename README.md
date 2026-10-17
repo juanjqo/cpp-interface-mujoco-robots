@@ -14,7 +14,7 @@ with MuJoCo's `simulate`).
 
 | Robot | Class | Variants | Model |
 |---|---|---|---|
-| Unitree B1, quadruped | [`UnitreeB1Robot`](include/dqrobotics_extensions/interfaces/mujoco/robots/UnitreeB1Robot.h) | `ACTUATORS::POSITION` (default), `VELOCITY`, `TORQUE`. `arm_mount()`: where a Z1 is mounted on its back | [`models/unitree_b1`](models/unitree_b1) |
+| Unitree B1, quadruped | [`UnitreeB1Robot`](include/dqrobotics_extensions/interfaces/mujoco/robots/UnitreeB1Robot.h) | `ACTUATORS::POSITION` (default), `VELOCITY`, `TORQUE`. Sensors: an IMU (`imu_site`) and touch sensors at the feet. `arm_mount()`: where a Z1 is mounted on its back | [`models/unitree_b1`](models/unitree_b1) |
 | Unitree Z1, 6-DoF arm | [`UnitreeZ1Robot`](include/dqrobotics_extensions/interfaces/mujoco/robots/UnitreeZ1Robot.h) | `GRIPPER::WITH` (default), `WITHOUT`; `ACTUATORS::POSITION` (default), `VELOCITY`, `TORQUE` for the arm (the gripper always has a position actuator) | [`models/unitree_z1`](models/unitree_z1) |
 
 ## Install
@@ -92,6 +92,9 @@ arm.set_reference_frame(mi.get_base_pose(b1.floating_base)*arm_reference);  // u
   add them.
 - A `home` keyframe, with `ctrl`, in which the robot holds its pose (with position actuators).
 - Sites at the end effectors (e.g., `end_effector`, the feet), whose poses match the kinematics of the class.
+- The sensors of the real robot as MuJoCo sensors on sites (e.g., the IMU of the B1, on the site `imu`, which is
+  `imu_site` of the description), read with the sensor methods of cpp-interface-mujoco (`get_imu_orientation()`,
+  `get_touch()`, ...).
 - Variants (e.g., actuators) as small MJCF files that include the robot (e.g., `b1.xml`, `b1_torque.xml` and
   `b1_robot.xml`), so that they share the robot and its meshes.
 - Mesh files in `assets/` (`<compiler meshdir="assets"/>`), light enough to load and render fast: see

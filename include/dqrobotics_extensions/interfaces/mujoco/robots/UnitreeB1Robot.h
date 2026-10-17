@@ -34,6 +34,10 @@ namespace DQ_robotics_extensions
  *   ACTUATORS::TORQUE: torque motors, for set_joint_target_forces(). Without a controller, the
  *   robot falls.
  * - Feet: the sites FL_foot, FR_foot, RL_foot, RR_foot.
+ * - Sensors: an IMU at the origin of the base (the site imu, imu_site of the description), for
+ *   get_imu_orientation(), get_imu_angular_velocity() and get_imu_linear_acceleration(); and a touch
+ *   sensor at each foot (the sites FL_foot_touch, ..., RR_foot_touch), for get_touch(): the normal
+ *   force of the foot on the ground.
  * - Keyframe "home": standing, each leg at (hip, thigh, calf) = (0, 0.7, -1.2), with the
  *   actuators holding the pose (ACTUATORS::POSITION), at zero velocity (ACTUATORS::VELOCITY) or at
  *   zero torque (ACTUATORS::TORQUE).

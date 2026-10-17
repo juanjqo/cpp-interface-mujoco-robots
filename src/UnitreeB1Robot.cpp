@@ -51,6 +51,7 @@ DQ_MujocoRobotDescription UnitreeB1Robot::description(const ACTUATORS& actuators
             robot.joint_names.push_back(leg + "_" + joint + "_joint");
     robot.home_keyframe = "home";
     robot.end_effector_sites = {"FL_foot", "FR_foot", "RL_foot", "RR_foot"};
+    robot.imu_site = "imu";
     return robot;
 }
 

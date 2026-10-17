@@ -10,6 +10,7 @@ set(TESTS
     unitree_z1_kinematics
     edit_scene_with_z1
     unitree_b1_description
+    unitree_b1_sensors
     unitree_b1_kinematics
     scene_builder_b1_and_z1
     unitree_b1z1
