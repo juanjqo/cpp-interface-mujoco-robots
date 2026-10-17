@@ -8,7 +8,7 @@ files. The models can also be used on their own, e.g., with MuJoCo's `simulate`.
 | Model | Robot | Variants | License |
 |---|---|---|---|
 | [`unitree_b1`](unitree_b1) | Unitree B1, quadruped | position actuators (`b1.xml`), velocity actuators (`b1_velocity.xml`), torque motors (`b1_torque.xml`) | BSD-3-Clause (Unitree Robotics) |
-| [`unitree_z1`](unitree_z1) | Unitree Z1, 6-DoF arm | with the gripper (`z1_gripper.xml`), without it (`z1.xml`) | BSD-3-Clause (Unitree Robotics) |
+| [`unitree_z1`](unitree_z1) | Unitree Z1, 6-DoF arm | with or without the gripper; position, velocity or torque actuators (`z1_gripper.xml`, `z1_velocity.xml`, ...) | BSD-3-Clause (Unitree Robotics) |
 
 Each model directory has its own `LICENSE`, which applies to the files in that directory, and a
 `README.md` with the source of the model, the changes made to it, and how its meshes were generated.

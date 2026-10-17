@@ -1,0 +1,21 @@
+<!--
+  The Unitree Z1 without its gripper, with torque motors: ctrl is the joint torque, within the
+  torque limits of the joints. Without a controller, the arm falls. The robot itself is in
+  z1_robot.xml.
+-->
+<mujoco model="z1">
+  <include file="z1_robot.xml"/>
+
+  <actuator>
+    <motor name="motor1" joint="joint1" ctrlrange="-30 30"/>
+    <motor name="motor2" joint="joint2" ctrlrange="-60 60"/>
+    <motor name="motor3" joint="joint3" ctrlrange="-30 30"/>
+    <motor name="motor4" joint="joint4" ctrlrange="-30 30"/>
+    <motor name="motor5" joint="joint5" ctrlrange="-30 30"/>
+    <motor name="motor6" joint="joint6" ctrlrange="-30 30"/>
+  </actuator>
+
+  <keyframe>
+    <key name="home" qpos="0 0.785 -0.261 -0.523 0 0" ctrl="0 0 0 0 0 0"/>
+  </keyframe>
+</mujoco>
