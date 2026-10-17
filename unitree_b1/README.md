@@ -37,7 +37,7 @@ Torque limits (N·m): 91.0035 (hip), 93.33 (thigh), 140 (calf). Joint ranges (ra
   - `hipb.obj`, `thighb.obj`, `thigh_mirrorb.obj` and `calfb.obj`: converted from the DAE meshes of
     unitree_ros (Unitree Robotics).
   - The other meshes (the trunk, its covers, head, eyes, battery, expansion box, mount frames, supports, Z1
-    brackets and rubber pads): made by Juan Jose Quiroz Omana.
+    brackets and rubber pads): made by Juan Jose Quiroz Omana, and released under the same license.
 
 ## Changes from unitree_description
 
@@ -66,5 +66,5 @@ blender -b --factory-startup --python tools/decimate_meshes.py -- \
 
 ## License
 
-These files are released under the [BSD-3-Clause License](LICENSE): Copyright (c) 2016-2022 HangZhou
-YuShu TECHNOLOGY CO.,LTD. ("Unitree Robotics"), and Copyright (c) 2026 Juan Jose Quiroz Omana.
+These files are released under the [BSD-3-Clause License](LICENSE), Copyright (c) 2016-2022 HangZhou
+YuShu TECHNOLOGY CO.,LTD. ("Unitree Robotics").
