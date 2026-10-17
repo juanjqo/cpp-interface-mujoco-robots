@@ -453,6 +453,49 @@ static void scene_builder_b1_and_z1()
     }
 }
 
+static void unitree_b1z1()
+{
+    // A Z1 mounted on the base of a B1 (the Unitree B1Z1): both start at home, the Z1 where it was
+    // mounted; the B1 stands with it; and the kinematics of the Z1, with its reference frame on the
+    // base, match its end effector, also while the base moves
+    DQ_MujocoSceneBuilder builder;
+    builder.add_floor();
+    const DQ_MujocoRobotDescription b1 = builder.add_robot(UnitreeB1Robot::description(), "b1_");
+    const DQ_MujocoRobotDescription z1 = builder.add_robot(UnitreeZ1Robot::description(), "z1_",
+                                                           UnitreeB1Robot::arm_mount(), b1.floating_base);
+    CHECK((z1.gripper_joint_names == std::vector<std::string>{"z1_jointGripper"}));
+
+    DQ_MujocoInterface mi(HEADLESS);
+    mi.load_model(builder.build());
+    CHECK((mi.get_floating_base_names() == std::vector<std::string>{"b1_base"}));
+    mi.reset_simulation("home");
+    CHECK_NEAR((mi.get_joint_positions(b1.joint_names) - b1_q_home()).norm(), 0.0);
+    CHECK_NEAR((mi.get_joint_positions(z1.joint_names) - z1_q_home()).norm(), 0.0);
+
+    DQ_SerialManipulatorDH arm = UnitreeZ1Robot::kinematics();
+    const DQ arm_reference = UnitreeB1Robot::arm_mount()*arm.get_reference_frame();
+    auto check_arm = [&]()
+    {
+        arm.set_reference_frame(mi.get_base_pose(b1.floating_base)*arm_reference);
+        CHECK(same_pose_error(arm.fkm(mi.get_joint_positions(z1.joint_names)),
+                              mi.get_site_pose(z1.end_effector_sites.at(0))) < 1e-9);
+    };
+    check_arm();
+
+    // After 3 s, the B1 stands (a bit lower, with the arm), and the Z1 holds its home pose
+    for (int i = 0; i < 1500; i++)
+        mi.trigger_next_simulation_step();
+    const double height = mi.get_base_pose(b1.floating_base).translation().q(3);
+    CHECK(height > 0.57 && height < 0.61);
+    CHECK((mi.get_joint_positions(z1.joint_names) - z1_q_home()).norm() < 0.05);
+
+    // The kinematics of the arm match wherever the base is
+    const DQ r = normalize(DQ(1, 0.1, -0.2, 0.3));
+    mi.set_base_pose(b1.floating_base, r + 0.5*E_*(0.5*i_ + 0.2*j_ + 0.8*k_)*r);
+    mi.set_joint_positions(z1.joint_names, vec({0.3, 1.2, -1.2, 0.2, -0.4, 0.5}));
+    check_arm();
+}
+
 int main(int argc, char** argv)
 {
     const std::map<std::string, std::function<void()>> tests_ = {
@@ -463,6 +506,7 @@ int main(int argc, char** argv)
         {"unitree_b1_description", unitree_b1_description},
         {"unitree_b1_kinematics", unitree_b1_kinematics},
         {"scene_builder_b1_and_z1", scene_builder_b1_and_z1},
+        {"unitree_b1z1", unitree_b1z1},
     };
 
     std::vector<std::string> selected;

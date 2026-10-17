@@ -14,7 +14,7 @@ with MuJoCo's `simulate`).
 
 | Robot | Class | Variants | Model |
 |---|---|---|---|
-| Unitree B1, quadruped | [`UnitreeB1Robot`](include/dqrobotics_extensions/interfaces/mujoco/robots/UnitreeB1Robot.h) | `ACTUATORS::POSITION` (default), `VELOCITY`, `TORQUE` | [`models/unitree_b1`](models/unitree_b1) |
+| Unitree B1, quadruped | [`UnitreeB1Robot`](include/dqrobotics_extensions/interfaces/mujoco/robots/UnitreeB1Robot.h) | `ACTUATORS::POSITION` (default), `VELOCITY`, `TORQUE`. `arm_mount()`: where a Z1 is mounted on its back | [`models/unitree_b1`](models/unitree_b1) |
 | Unitree Z1, 6-DoF arm | [`UnitreeZ1Robot`](include/dqrobotics_extensions/interfaces/mujoco/robots/UnitreeZ1Robot.h) | `GRIPPER::WITH` (default), `WITHOUT`; `ACTUATORS::POSITION` (default), `VELOCITY`, `TORQUE` for the arm (the gripper always has a position actuator) | [`models/unitree_z1`](models/unitree_z1) |
 
 ## Install
@@ -64,11 +64,26 @@ const DQ x = arm.fkm(q);                                             // = mi.get
 ```
 
 The robots can also be placed in scenes with `DQ_MujocoSceneBuilder::add_robot()` (see cpp-interface-mujoco), several
-times and with any of their variants: their meshes are stored once.
+times and with any of their variants: their meshes are stored once. A robot can also be mounted on another one, e.g.,
+a Z1 on the back of a B1, as in the Unitree B1Z1:
+
+```cpp
+DQ_MujocoSceneBuilder scene;
+scene.add_floor();
+const auto b1 = scene.add_robot(UnitreeB1Robot::description(), "b1_");
+const auto z1 = scene.add_robot(UnitreeZ1Robot::description(), "z1_", UnitreeB1Robot::arm_mount(), b1.floating_base);
+mi.load_model(scene.build());
+
+// The kinematics of the Z1, carried by the base of the B1
+DQ_SerialManipulatorDH arm = UnitreeZ1Robot::kinematics();
+const DQ arm_reference = UnitreeB1Robot::arm_mount()*arm.get_reference_frame();
+arm.set_reference_frame(mi.get_base_pose(b1.floating_base)*arm_reference);  // update it as the base moves
+```
 
 | Example | What it shows |
 |---|---|
 | [`unitree_b1`](examples/unitree_b1.cpp) | The B1 stands with its feet on the floor and moves its base (up and down, rolling, pitching): each leg follows its foot, relative to the desired base, with a kinematic controller that uses `UnitreeB1Robot::kinematics()` |
+| [`unitree_b1z1`](examples/unitree_b1z1.cpp) | A Z1 mounted on the back of a B1 (the Unitree B1Z1): the B1 moves its base as in `unitree_b1`, while the Z1, whose kinematics are carried by the measured base, keeps its gripper still in the world; the gripper opens and closes |
 | [`unitree_z1`](examples/unitree_z1.cpp) | Two Z1 arms, with and without the gripper, placed with the scene builder: each end effector follows a moving target with a kinematic controller that uses `UnitreeZ1Robot::kinematics()`, and the gripper opens and closes |
 
 ## Conventions of the models

@@ -12,6 +12,7 @@ set(TESTS
     unitree_b1_description
     unitree_b1_kinematics
     scene_builder_b1_and_z1
+    unitree_b1z1
 )
 foreach(test_name IN LISTS TESTS)
     add_test(NAME ${test_name} COMMAND test_robots ${test_name})

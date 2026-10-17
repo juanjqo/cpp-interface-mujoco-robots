@@ -38,6 +38,8 @@ namespace DQ_robotics_extensions
  *   actuators holding the pose (ACTUATORS::POSITION), at zero velocity (ACTUATORS::VELOCITY) or at
  *   zero torque (ACTUATORS::TORQUE).
  * - kinematics(): the DQ Robotics models of the legs, in the frame of the base.
+ * - arm_mount(): where an arm is mounted on the back of the robot (the brackets of a Z1, as in the
+ *   Unitree B1Z1), to add it with DQ_MujocoSceneBuilder::add_robot(arm, prefix, arm_mount(), base).
  *
  * Example:
  * @code
@@ -68,6 +70,7 @@ public:
 
     static DQ_MujocoRobotDescription description(const ACTUATORS& actuators = ACTUATORS::POSITION);
     static std::vector<DQ_robotics::DQ_SerialManipulatorDH> kinematics();
+    static DQ_robotics::DQ arm_mount();
 };
 
 }

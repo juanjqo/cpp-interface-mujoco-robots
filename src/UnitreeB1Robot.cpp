@@ -117,4 +117,21 @@ std::vector<DQ_robotics::DQ_SerialManipulatorDH> UnitreeB1Robot::kinematics()
     return legs;
 }
 
+/**
+ * @brief Where an arm is mounted on the back of the Unitree B1: the center of the top of the brackets
+ *        of a Z1 (the mesh z1_brackets of the model), as in the Unitree B1Z1.
+ * @return The pose of the mount in the frame of the base (its z axis up), e.g., to mount a Z1 with
+ * @code
+ * const auto b1 = scene.add_robot(UnitreeB1Robot::description(), "b1_");
+ * const auto z1 = scene.add_robot(UnitreeZ1Robot::description(), "z1_", UnitreeB1Robot::arm_mount(),
+ *                                 b1.floating_base);
+ * @endcode
+ * The pose of the mount in the world is get_base_pose(b1.floating_base)*arm_mount().
+ */
+DQ_robotics::DQ UnitreeB1Robot::arm_mount()
+{
+    using namespace DQ_robotics;
+    return 1 + 0.5*E_*(0.2257*i_ + 0.1058*k_);
+}
+
 }
