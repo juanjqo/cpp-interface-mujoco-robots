@@ -122,7 +122,8 @@ arm.set_reference_frame(mi.get_base_pose(b1.floating_base)*arm_reference);  // u
 - The files of each model directory (`models/<robot>/`) are under the license in that directory: BSD-3-Clause,
   Copyright (c) 2016-2022 Unitree Robotics, for the Unitree robots. These licenses are installed with the library.
 - The other files of this repository (the C++ code, the tools and the documentation) are under the
-  [LICENSE](LICENSE) of the repository.
+  [LGPL-3.0-or-later](LICENSE), which supplements the [GPL-3.0](COPYING).
+- The installation includes all these licenses, in `share/doc/dqrobotics-interface-mujoco-robots`.
 
 This project uses [DQ Robotics](https://github.com/dqrobotics/cpp) (LGPL-3.0-or-later) and cpp-interface-mujoco
 (LGPL-3.0-or-later), but is not part of the DQ Robotics project.

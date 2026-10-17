@@ -110,6 +110,9 @@ install(TARGETS ${PROJECT_NAME}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+# The licenses, with the documentation: this package's (LICENSE, the LGPL-3.0, and COPYING, the
+# GPL-3.0 that it supplements)
+install(FILES LICENSE COPYING DESTINATION ${CMAKE_INSTALL_DOCDIR})
 # The licenses of the embedded models (e.g., BSD-3-Clause asks to ship its notice with the binaries)
 foreach(model IN LISTS ROBOT_MODELS)
     install(FILES ${MODELS_DIR}/${model}/LICENSE DESTINATION ${CMAKE_INSTALL_DOCDIR}/models/${model})
